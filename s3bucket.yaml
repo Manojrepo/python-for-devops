@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  CloudFormation template to create an S3 bucket with KMS encryption,
+  public access blocking, tagging, and outputs.
+
+Parameters:
+  BucketName: 
+    Type: String
+    Description: murugan-shiva-my-family
+    Default: project123-data001
+    AllowedPattern: '^[a-z0-9.-]{3,63}$'
+    ConstraintDescription: 'Lowercase letters, numbers, hyphens, dots; 3–63 chars.'
+
+
+Resources:
+  MyS3Bucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Ref BucketName
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: alias/my-key  # Replace with your actual KMS key ARN or alias
+      VersioningConfiguration:
+        Status: Enabled        
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: Name
+          Value: !Ref BucketName
+        - Key: Environment
+          Value: Demo
+    
+
+Outputs:
+  BucketName:
+    Description: Name of the created S3 bucket
+    Value: !Ref MyS3Bucket
+  BucketArn:
+    Description: ARN of the S3 bucket
+    Value: !GetAtt MyS3Bucket.Arn
